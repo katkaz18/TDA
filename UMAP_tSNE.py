@@ -44,17 +44,24 @@ line='101915_ses-1'
 
 # By default 2nd subject will be fetched
 #haxby_dataset = datasets.fetch_haxby()
-epi = nib.load(os.path.join(base_dir, line,'functional_to_standard/_scan_func-1/_selector_M-SDBVC_BP-B0.009-T0.08/bandpassed_demeaned_filtered_antswarp.nii.gz'))
+epi = (os.path.join(base_dir, line,'functional_to_standard/_scan_func-1/_selector_M-SDBVC_BP-B0.009-T0.08/bandpassed_demeaned_filtered_antswarp.nii.gz'))
 epi2='/Users/kasia/Documents/Topology/101915_ses-1/functional_to_standard/_scan_func-1/_selector_M-SDBVC_BP-B0.009-T0.08/bandpassed_demeaned_filtered_antswarp.nii.gz'
 
-mask=nib.load(os.path.join(base_dir, line, 'anatomical_gm_mask/segment_seg_1_maths_maths.nii'))
-
+mask=(os.path.join(base_dir, line, 'anatomical_gm_mask/segment_seg_1_maths_maths.nii'))
+#nib.load
 # mask_data=mask.get_fdata()
-
-epi_data = epi.get_fdata()
+from nilearn import image as img
+#epi_data = epi.get_fdata()
+mni_t1_img = img.load_img(mask)
+mni_epi_img = img.load_img(epi)
 
 from nilearn.image import resample_to_img
-resampled_stat_img = resample_to_img(mask, epi)
+
+resamp_mni_T1 = img.resample_to_img(source_img=mni_t1_img, target_img=mni_epi_img, interpolation='nearest')
+print("Resampled T1 dimensions", resamp_mni_T1.shape)
+print("EPI dimensions", mni_epi_img.shape)
+#mask_img = resample_to_img(epi, mask)
+#masked_data = apply_mask(epi2, resamp_mni_T1)
 
 #4D array to 2D voxels by time
 # n_voxels = np.prod(epi_data.shape[:-1])
@@ -66,26 +73,26 @@ resampled_stat_img = resample_to_img(mask, epi)
 
 #gM=nilearn.masking.compute_gray_matter_mask(mask, threshold=0.5, connected=True, verbose=0)
 
-masker = NiftiMasker(mask_strategy='template',detrend=True)
-masker3 = NiftiMasker(
-    resampled_stat_img, 
+#masker = NiftiMasker(mask_strategy='template',detrend=True)
+
+masker = NiftiMasker(
+    resamp_mni_T1, 
     standardize=True, detrend=True, smoothing_fwhm=4.0,
-    t_r=0.72,
     memory="nilearn_cache")
 
 
-X = masker.fit_transform(epi2)
-X3=masker3.fit_transform(epi2)
+#X = masker.fit_transform(epi2)
+X=masker.fit_transform(epi2)
 
 
 from nilearn.plotting import plot_roi, plot_epi, show
-plot_roi(masker3.mask_img_, mask, title='Mask')
+plot_roi(masker.mask_img_, title='Mask')
 
 #Generate a shape graph using KeplerMapper
 mapper = KeplerMapper(verbose=1)
 # Configure projection
 pca2 = PCA(2, random_state=1)
-umap2 = UMAP(n_components=2, init=pca2.fit_transform(X2))
+umap2 = UMAP(n_components=2, init=pca2.fit_transform(X))
 
 #matplotlib.pyplot.scatter(*umap2.T)
 
