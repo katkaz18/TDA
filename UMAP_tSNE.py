@@ -54,7 +54,7 @@ mask=nib.load(os.path.join(base_dir, line, 'anatomical_gm_mask/segment_seg_1_mat
 epi_data = epi.get_fdata()
 
 from nilearn.image import resample_to_img
-resampled_stat_img = resample_to_img(epi, mask)
+resampled_stat_img = resample_to_img(mask, epi)
 
 #4D array to 2D voxels by time
 # n_voxels = np.prod(epi_data.shape[:-1])
@@ -64,20 +64,16 @@ resampled_stat_img = resample_to_img(epi, mask)
 
 # X=voxel_by_time.T
 
-gM=nilearn.masking.compute_gray_matter_mask(mask, threshold=0.5, connected=True, opening=2, memory=None, verbose=0)
+#gM=nilearn.masking.compute_gray_matter_mask(mask, threshold=0.5, connected=True, verbose=0)
 
 masker = NiftiMasker(mask_strategy='template',detrend=True)
 masker3 = NiftiMasker(
-    mask, 
+    resampled_stat_img, 
     standardize=True, detrend=True, smoothing_fwhm=4.0,
     t_r=0.72,
     memory="nilearn_cache")
 
-masker = NiftiMasker(
-    dataset.mask_vt[0], 
-    standardize=True, detrend=True, smoothing_fwhm=4.0,
-    low_pass=0.09, high_pass=0.008, t_r=0.72,
-    memory="nilearn_cache")
+
 X = masker.fit_transform(epi2)
 X3=masker3.fit_transform(epi2)
 
