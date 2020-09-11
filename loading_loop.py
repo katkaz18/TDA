@@ -25,14 +25,14 @@ for numb  in list1:
      
     masker = NiftiMasker(
     mask1, 
-    standardize=False, detrend=True, smoothing_fwhm=4.0,
+    standardize=True, detrend=True, smoothing_fwhm=4.0,
     low_pass=0.09, high_pass=0.008, t_r=0.72,
     memory="nilearn_cache")
     X = masker.fit_transform(epi)
         
     masker2 = NiftiMasker(
     mask2, 
-    standardize=False, detrend=True, smoothing_fwhm=4.0,
+    standardize=True, detrend=True, smoothing_fwhm=4.0,
     low_pass=0.09, high_pass=0.008, t_r=0.72,
     memory="nilearn_cache")
     X2 = masker2.fit_transform(epi)
@@ -41,27 +41,22 @@ for numb  in list1:
     globals()["v" + str(i)] = X2
     print(i)
     
+all_ACC=[]
+all_PFC=[]
 
-
+for ii in range(len(w1)):
        
-all_ACC=np.vstack((w1[ii,:], w2[ii,:], w3[ii,:], w4[ii,:], w5[ii,:]))
-#all_PFC=np.vstack((v1[ii,:], v2[ii,:], v3[ii,:], v4[ii,:], v5[ii,:]))
+    all_ACC.append(np.vstack((w1[ii,:], w2[ii,:], w3[ii,:], w4[ii,:], w5[ii,:])))
+    all_PFC.append(np.vstack((v1[ii,:], v2[ii,:], v3[ii,:], v4[ii,:], v5[ii,:])))
 
-
-# The following procedure normalizes the response within voxels over time
-from sklearn import preprocessing
-
-scaler = preprocessing.StandardScaler()
-scaler.fit(all_ACC)
-data_ACC = scaler.transform(all_ACC)
-
-scaler.fit(all_PFC)
-data_PFC=scaler.transform(all_PFC)
+#concatenated results
+all_subjects_ACC=np.concatenate(all_ACC, axis=0)
+all_subjects_PFC=np.concatenate(all_PFC, axis=0)
 
 from sklearn.decomposition import PCA
 pca = PCA(1, random_state=1)
-tran1=pca.fit_transform(data_ACC.T)
-tran2=pca.fit_transform(data_PFC.T)
+tran1=pca.fit_transform(all_subjects_ACC)
+tran2=pca.fit_transform(all_subjects_PFC)
 
 import matplotlib.pyplot as plt
 plt.plot(tran1, '^')
