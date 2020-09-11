@@ -53,21 +53,23 @@ result2=rolling_window(list2, 10)
 see=np.concatenate(result, axis=1)
 see2=np.concatenate(result2, axis=1)
 
-ii=0
-r=[]
-r2=[]
-step=10
-
 from sklearn.decomposition import PCA
+from umap.umap_ import UMAP
+
 pca = PCA(1, random_state=1)
+umap = UMAP(n_components=1, n_neighbors=50, metric='correlation')
 
 tran1=pca.fit_transform(see)
 tran2=pca.fit_transform(see2)
+umap_1=umap.fit_transform(see)
+umap_2=umap.fit_transform(see2)
 
 import matplotlib.pyplot as plt
 plt.plot(tran1, '*')
 plt.plot(tran2, '^')
 
+# plt.plot(umap_1, '*')
+# plt.plot(umap_2, '*')
 
 # for ii in range(395):
 #     #aa=mask1_sub1[ii:ii+step,:]
