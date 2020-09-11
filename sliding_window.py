@@ -60,15 +60,18 @@ list=mask1_sub1.T
 list2=mask2_sub1.T
 result=rolling_window(list, 10)
 result2=rolling_window(list2, 10)
-see=np.concatenate(result2, axis=1)
-
+see=np.concatenate(result, axis=1)
+see2=np.concatenate(result2, axis=1)
 try1=np.diff(see)
+try2=np.diff(see2)
 
 from sklearn.decomposition import PCA
 pca = PCA(1, random_state=1)
 tran1=pca.fit_transform(try1)
+tran2=pca.fit_transform(try2)
 
 import matplotlib.pyplot as plt
 plt.plot(tran1, '*')
+plt.plot(tran2, '*')
 
 
