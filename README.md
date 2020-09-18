@@ -1,4 +1,4 @@
-List of used approaches for TDA:
+List of used approaches for TDA: 
 
 •	UMAP and tSNE n_components=2
 
